@@ -12,7 +12,7 @@ Looking for maintainer/contributors to help improve this library.
 
 ## Motivation
 
-Couldn't find a chart library for GTK4 so created one.
+Couldn't find a chart widget library for GTK4 so created one.
 
 ## Features
 
