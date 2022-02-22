@@ -1,4 +1,4 @@
-# GtkChart
+# GtkChart - a chart widget for GTK4
 
 ## Introduction
 
