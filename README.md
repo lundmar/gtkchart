@@ -8,6 +8,10 @@ This is a spinoff from the lxi-tools project.
 
 Much can be improved but it is better than nothing.
 
+## Motivation
+
+Couldn't find a GTK4 chart library so created one.
+
 ## Chart types
 
 <p align="center">
