@@ -4,11 +4,11 @@
 
 The beginnings of a small chart widget library for GTK4.
 
-This is a spinoff from the lxi-tools project.
+This is a spinoff from the [lxi-tools](https://lxi-tools.github.io) project.
 
 Much can be improved but it is better than nothing.
 
-Looking for contributors to help improve this library.
+Looking for maintainer/contributors to help improve this library.
 
 ## Motivation
 
