@@ -30,7 +30,9 @@ Couldn't find a chart library for GTK4 so created one.
 ## Todo
 
  * Optimize Cairo/snapshot code
- * Make charts handle negative axis values
+ * Make charts handle negative axis ranges
+   * Introduce gtk\_chart\_set\_x\_min()
+   * Introduce gtk\_chart\_set\_y\_min()
  * Make charts zoomable
  * Make chart axes autoscale depending on plot value
  * Make colours configurable
