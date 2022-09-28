@@ -62,7 +62,34 @@ struct _GtkChartClass
   GtkWidgetClass parent_class;
 };
 
+// Colors
+GdkRGBA bg_color, white, blue, red, line, grid;
+
+// Font
+gchar *font_name;
+
 G_DEFINE_TYPE (GtkChart, gtk_chart, GTK_TYPE_WIDGET)
+
+void
+gtk_chart_get_theme_colors (GtkWidget *parent)
+{
+  GtkStyleContext *context = gtk_widget_get_style_context (parent);
+  gtk_style_context_lookup_color (context, "theme_bg_color", &bg_color);
+  gtk_style_context_lookup_color (context, "theme_fg_color", &white);
+  gtk_style_context_lookup_color (context, "theme_selected_bg_color", &blue);
+  gtk_style_context_lookup_color (context, "error_color", &red);
+  gtk_style_context_lookup_color (context, "theme_selected_bg_color", &line);
+  gtk_style_context_lookup_color (context, "theme_fg_color", &grid);
+  grid.alpha = 0.1;
+}
+
+static void
+gtk_chart_set_theme_colors (GtkSettings *widget_settings G_GNUC_UNUSED,
+                            GParamSpec *pspec G_GNUC_UNUSED,
+                            GtkChart *self)
+{
+  gtk_chart_get_theme_colors (&self->parent_instance);
+}
 
 static void
 gtk_chart_init (GtkChart *self)
@@ -79,6 +106,25 @@ gtk_chart_init (GtkChart *self)
   self->value_max = 100;
   self->width = 500;
   self->snapshot = NULL;
+
+  gtk_chart_get_theme_colors (&self->parent_instance);
+
+  GtkSettings *widget_settings = gtk_widget_get_settings (&self->parent_instance);
+
+  g_signal_connect (widget_settings,
+                    "notify::gtk-application-prefer-dark-theme",
+                    G_CALLBACK (gtk_chart_set_theme_colors),
+                    self);
+  g_signal_connect (widget_settings,
+                    "notify::gtk-theme-name",
+                    G_CALLBACK (gtk_chart_set_theme_colors),
+                    self);
+
+  // Get default font
+  GValue font_name_value = G_VALUE_INIT;
+  g_object_get_property (G_OBJECT (widget_settings), "gtk-font-name", &font_name_value);
+  font_name = g_strdup_value_contents (&font_name_value);
+  font_name = &g_strsplit (font_name, " ", 2)[0][1];
 
   //gtk_widget_init_template (GTK_WIDGET (self));
 }
@@ -122,17 +168,8 @@ chart_draw_line_or_scatter(GtkChart *self,
                            float h,
                            float w)
 {
-  GdkRGBA bg_color, white, blue, red, line, grid;
   cairo_text_extents_t extents;
   char value[20];
-
-  //gdk_rgba_parse (&bg_color, "#2d2d2d");
-  gdk_rgba_parse (&bg_color, "black");
-  gdk_rgba_parse (&white, "rgba(255,255,255,0.75)");
-  gdk_rgba_parse (&blue, "blue");
-  gdk_rgba_parse (&red, "red");
-  gdk_rgba_parse (&line, "#325aad");
-  gdk_rgba_parse (&grid, "rgba(255,255,255,0.1)");
 
   // Set background color
   gtk_snapshot_append_color (snapshot,
@@ -146,7 +183,7 @@ chart_draw_line_or_scatter(GtkChart *self,
   cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
   cairo_set_tolerance (cr, 1.5);
   gdk_cairo_set_source_rgba (cr, &white);
-  cairo_select_font_face (cr, "Ubuntu", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
   // Move coordinate system to bottom left
   cairo_translate(cr, 0, h);
@@ -399,16 +436,8 @@ chart_draw_number(GtkChart *self,
                   float h,
                   float w)
 {
-  GdkRGBA bg_color, white, blue, red, line, grid;
   cairo_text_extents_t extents;
   char value[20];
-
-  gdk_rgba_parse (&bg_color, "black");
-  gdk_rgba_parse (&white, "rgba(255,255,255,0.75)");
-  gdk_rgba_parse (&blue, "blue");
-  gdk_rgba_parse (&red, "red");
-  gdk_rgba_parse (&line, "#325aad");
-  gdk_rgba_parse (&grid, "rgba(255,255,255,0.1)");
 
   // Set background color
   gtk_snapshot_append_color (snapshot,
@@ -422,7 +451,7 @@ chart_draw_number(GtkChart *self,
   cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
   cairo_set_tolerance (cr, 1.5);
   gdk_cairo_set_source_rgba (cr, &white);
-  cairo_select_font_face (cr, "Ubuntu", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
   // Move coordinate system to bottom left
   cairo_translate(cr, 0, h);
@@ -467,16 +496,8 @@ chart_draw_gauge_linear(GtkChart *self,
                         float h,
                         float w)
 {
-  GdkRGBA bg_color, white, blue, red, line, grid;
   cairo_text_extents_t extents;
   char value[20];
-
-  gdk_rgba_parse (&bg_color, "black");
-  gdk_rgba_parse (&white, "rgba(255,255,255,0.75)");
-  gdk_rgba_parse (&blue, "blue");
-  gdk_rgba_parse (&red, "red");
-  gdk_rgba_parse (&line, "#325aad");
-  gdk_rgba_parse (&grid, "rgba(255,255,255,0.1)");
 
   // Set background color
   gtk_snapshot_append_color (snapshot,
@@ -490,7 +511,7 @@ chart_draw_gauge_linear(GtkChart *self,
   cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
   cairo_set_tolerance (cr, 1.5);
   gdk_cairo_set_source_rgba (cr, &white);
-  cairo_select_font_face (cr, "Ubuntu", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
   // Move coordinate system to bottom left
   cairo_translate(cr, 0, h);
@@ -569,16 +590,8 @@ chart_draw_gauge_angular(GtkChart *self,
                         float h,
                         float w)
 {
-  GdkRGBA bg_color, white, blue, red, line, grid;
   cairo_text_extents_t extents;
   char value[20];
-
-  gdk_rgba_parse (&bg_color, "black");
-  gdk_rgba_parse (&white, "rgba(255,255,255,0.75)");
-  gdk_rgba_parse (&blue, "blue");
-  gdk_rgba_parse (&red, "red");
-  gdk_rgba_parse (&line, "#325aad");
-  gdk_rgba_parse (&grid, "rgba(255,255,255,0.1)");
 
   // Set background color
   gtk_snapshot_append_color (snapshot,
@@ -592,7 +605,7 @@ chart_draw_gauge_angular(GtkChart *self,
   cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
 //  cairo_set_tolerance (cr, 1.5);
   gdk_cairo_set_source_rgba (cr, &white);
-  cairo_select_font_face (cr, "Ubuntu", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
   // Move coordinate system to bottom left
   cairo_translate(cr, 0, h);
@@ -677,12 +690,8 @@ chart_draw_unknown_type(GtkChart *self,
 {
   UNUSED(self);
 
-  GdkRGBA bg_color, white;
   cairo_text_extents_t extents;
   const char *warning = "Unknown chart type";
-
-  gdk_rgba_parse (&bg_color, "black");
-  gdk_rgba_parse (&white, "rgba(255,255,255,0.75)");
 
   // Set background color
   gtk_snapshot_append_color (snapshot,
@@ -692,7 +701,7 @@ chart_draw_unknown_type(GtkChart *self,
   // Set up Cairo region
   cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
   gdk_cairo_set_source_rgba (cr, &white);
-  cairo_select_font_face (cr, "Ubuntu", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
   // Move coordinate system to bottom left
   cairo_translate(cr, 0, h);
