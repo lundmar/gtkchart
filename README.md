@@ -26,6 +26,7 @@ Couldn't find a chart widget library for GTK4 so created one.
  * Plot and render data live
  * Save rendered chart to PNG
  * Save plotted data to CSV
+ * Demo application
 
 ## Todo
 

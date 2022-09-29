@@ -1,0 +1,3 @@
+option('build_demo',
+       type : 'boolean', value: false,
+       description : 'Build demo application')

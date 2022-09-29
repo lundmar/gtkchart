@@ -1,15 +1,20 @@
 project('libgtkchart', 'c',
-  version: '0.1',
-  license: 'BSD-3-Clause',
-  meson_version: '>= 0.53.2',
-  default_options: [ 'warning_level=2', 'buildtype=release', 'c_std=gnu11', 'optimization=2', 'b_lundef=false' ]
+         version: '0.2',
+         license: 'BSD-3-Clause',
+         meson_version: '>= 0.53.2',
+         default_options: [ 'warning_level=2', 'buildtype=release', 'c_std=gnu11', 'optimization=2', 'b_lundef=false' ]
 )
 
 subdir('src')
 
 pkg_mod = import('pkgconfig')
 pkg_mod.generate(libraries: libgtkchart,
-  name: 'libgtkchart',
-  filebase: 'libgtkchart',
-  description: 'A small chart widget library for GTK4'
+                 name: 'libgtkchart',
+                 filebase: 'libgtkchart',
+                 description: 'A small chart widget library for GTK4'
 )
+
+build_demo = get_option('build_demo')
+if build_demo
+    subdir('demo')
+endif
