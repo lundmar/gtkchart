@@ -8,7 +8,7 @@
 #include <gtk/gtk.h>
 #include <gtkchart.h>
 
-static GtkWidget *chart;
+static GtkChart *chart;
 static GMutex producer_mutex;
 
 struct point_t
@@ -21,7 +21,7 @@ static gboolean gui_chart_plot_thread(gpointer user_data)
 {
     struct point_t *point = user_data;
 
-    gtk_chart_plot_point(GTK_CHART(chart), point->x, point->y);
+    gtk_chart_plot_point(chart, point->x, point->y);
 
     return G_SOURCE_REMOVE;
 }
@@ -35,17 +35,17 @@ static void app_activate(GApplication *app, gpointer user_data)
     gtk_window_set_title(GTK_WINDOW(window), "gtkchart-demo");
     gtk_window_set_default_size(GTK_WINDOW (window), 1000, 700);
 
-    chart = gtk_chart_new();
-    gtk_chart_set_type(GTK_CHART(chart), GTK_CHART_TYPE_LINE);
-    gtk_chart_set_title(GTK_CHART(chart), "Sine signal, f(x) = 5 + 3sin(x)");
-    gtk_chart_set_label(GTK_CHART(chart), "Label");
-    gtk_chart_set_x_label(GTK_CHART(chart), "X label [unit]");
-    gtk_chart_set_y_label(GTK_CHART(chart), "Y label [unit]");
-    gtk_chart_set_x_max(GTK_CHART(chart), 100);
-    gtk_chart_set_y_max(GTK_CHART(chart), 10);
-    gtk_chart_set_width(GTK_CHART(chart), 800);
+    chart = GTK_CHART(gtk_chart_new());
+    gtk_chart_set_type(chart, GTK_CHART_TYPE_LINE);
+    gtk_chart_set_title(chart, "Sine signal, f(x) = 5 + 3sin(x)");
+    gtk_chart_set_label(chart, "Label");
+    gtk_chart_set_x_label(chart, "X label [unit]");
+    gtk_chart_set_y_label(chart, "Y label [unit]");
+    gtk_chart_set_x_max(chart, 100);
+    gtk_chart_set_y_max(chart, 10);
+    gtk_chart_set_width(chart, 800);
 
-    gtk_window_set_child(GTK_WINDOW (window), chart);
+    gtk_window_set_child(GTK_WINDOW (window), GTK_WIDGET(chart));
 
     gtk_widget_show(window);
 
@@ -72,8 +72,8 @@ static gpointer producer_function(gpointer user_data)
         x += 0.1;
     }
 
-    gtk_chart_save_csv(GTK_CHART(chart), "chart0.csv");
-    gtk_chart_save_png(GTK_CHART(chart), "chart0.png");
+    gtk_chart_save_csv(chart, "chart0.csv");
+    gtk_chart_save_png(chart, "chart0.png");
 
     g_mutex_unlock(&producer_mutex);
 
