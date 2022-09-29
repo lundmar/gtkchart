@@ -747,63 +747,63 @@ static void gtk_chart_class_init (GtkChartClass *class)
     widget_class->snapshot = gtk_chart_snapshot;
 }
 
-GtkWidget * gtk_chart_new (void)
+EXPORT GtkWidget * gtk_chart_new (void)
 {
 
     return g_object_new (GTK_TYPE_CHART, NULL);
 }
 
-void gtk_chart_set_user_data(GtkChart *chart, void *user_data)
+EXPORT void gtk_chart_set_user_data(GtkChart *chart, void *user_data)
 {
     chart->user_data = user_data;
 }
 
-void * gtk_chart_get_user_data(GtkChart *chart)
+EXPORT void * gtk_chart_get_user_data(GtkChart *chart)
 {
     return chart->user_data;
 }
 
-void gtk_chart_set_type(GtkChart *chart, GtkChartType type)
+EXPORT void gtk_chart_set_type(GtkChart *chart, GtkChartType type)
 {
     chart->type = type;
 }
 
-void gtk_chart_set_title(GtkChart *chart, const char *title)
+EXPORT void gtk_chart_set_title(GtkChart *chart, const char *title)
 {
     chart->title = g_strdup(title);
 }
 
-void gtk_chart_set_label(GtkChart *chart, const char *label)
+EXPORT void gtk_chart_set_label(GtkChart *chart, const char *label)
 {
     chart->label = g_strdup(label);
 }
 
-void gtk_chart_set_x_label(GtkChart *chart, const char *x_label)
+EXPORT void gtk_chart_set_x_label(GtkChart *chart, const char *x_label)
 {
     chart->x_label = g_strdup(x_label);
 }
 
-void gtk_chart_set_y_label(GtkChart *chart, const char *y_label)
+EXPORT void gtk_chart_set_y_label(GtkChart *chart, const char *y_label)
 {
     chart->y_label = g_strdup(y_label);
 }
 
-void gtk_chart_set_x_max(GtkChart *chart, double x_max)
+EXPORT void gtk_chart_set_x_max(GtkChart *chart, double x_max)
 {
     chart->x_max = x_max;
 }
 
-void gtk_chart_set_y_max(GtkChart *chart, double y_max)
+EXPORT void gtk_chart_set_y_max(GtkChart *chart, double y_max)
 {
     chart->y_max = y_max;
 }
 
-void gtk_chart_set_width(GtkChart *chart, int width)
+EXPORT void gtk_chart_set_width(GtkChart *chart, int width)
 {
     chart->width = width;
 }
 
-void gtk_chart_plot_point(GtkChart *chart, double x, double y)
+EXPORT void gtk_chart_plot_point(GtkChart *chart, double x, double y)
 {
     // Allocate memory for new point
     struct chart_point_t *point = g_new0(struct chart_point_t, 1);
@@ -820,7 +820,7 @@ void gtk_chart_plot_point(GtkChart *chart, double x, double y)
     }
 }
 
-void gtk_chart_set_value(GtkChart *chart, double value)
+EXPORT void gtk_chart_set_value(GtkChart *chart, double value)
 {
     chart->value = value;
 
@@ -831,17 +831,17 @@ void gtk_chart_set_value(GtkChart *chart, double value)
     }
 }
 
-void gtk_chart_set_value_min(GtkChart *chart, double value)
+EXPORT void gtk_chart_set_value_min(GtkChart *chart, double value)
 {
     chart->value_min = value;
 }
 
-void gtk_chart_set_value_max(GtkChart *chart, double value)
+EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value)
 {
     chart->value_max = value;
 }
 
-bool gtk_chart_save_csv(GtkChart *chart, const char *filename)
+EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename)
 {
     struct chart_point_t *point;
     GSList *l;
@@ -868,7 +868,7 @@ bool gtk_chart_save_csv(GtkChart *chart, const char *filename)
     return true;
 }
 
-bool gtk_chart_save_png(GtkChart *chart, const char *filename)
+EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename)
 {
     int width = gtk_widget_get_width (GTK_WIDGET(chart));
     int height = gtk_widget_get_height (GTK_WIDGET(chart));

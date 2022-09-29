@@ -32,6 +32,17 @@
 
 #include <gtk/gtk.h>
 
+#if defined _WIN32 || defined __CYGWIN__
+  #define EXPORT __declspec(dllexport)
+#else
+  #if defined __GNUC__
+    #define EXPORT __attribute__ ((visibility("default")))
+  #else
+    #pragma message ("Compiler does not support symbol visibility.")
+    #define EXPORT
+  #endif
+#endif
+
 G_BEGIN_DECLS
 
 #define GTK_TYPE_CHART (gtk_chart_get_type ())
@@ -47,23 +58,22 @@ typedef enum
   GTK_CHART_TYPE_NUMBER
 } GtkChartType;
 
-GtkWidget * gtk_chart_new (void);
-
-void gtk_chart_set_type(GtkChart *chart, GtkChartType type);
-void gtk_chart_set_title(GtkChart *chart, const char *title);
-void gtk_chart_set_label(GtkChart *chart, const char *label);
-void gtk_chart_set_x_label(GtkChart *chart, const char *x_label);
-void gtk_chart_set_y_label(GtkChart *chart, const char *y_label);
-void gtk_chart_set_x_max(GtkChart *chart, double x_max);
-void gtk_chart_set_y_max(GtkChart *chart, double y_max);
-void gtk_chart_set_width(GtkChart *chart, int width);
-void gtk_chart_plot_point(GtkChart *chart, double x, double y);
-void gtk_chart_set_value(GtkChart *chart, double value);
-void gtk_chart_set_value_min(GtkChart *chart, double value);
-void gtk_chart_set_value_max(GtkChart *chart, double value);
-bool gtk_chart_save_csv(GtkChart *chart, const char *filename);
-bool gtk_chart_save_png(GtkChart *chart, const char *filename);
-void gtk_chart_set_user_data(GtkChart *chart, void *user_data);
-void * gtk_chart_get_user_data(GtkChart *chart);
+EXPORT GtkWidget * gtk_chart_new (void);
+EXPORT void gtk_chart_set_type(GtkChart *chart, GtkChartType type);
+EXPORT void gtk_chart_set_title(GtkChart *chart, const char *title);
+EXPORT void gtk_chart_set_label(GtkChart *chart, const char *label);
+EXPORT void gtk_chart_set_x_label(GtkChart *chart, const char *x_label);
+EXPORT void gtk_chart_set_y_label(GtkChart *chart, const char *y_label);
+EXPORT void gtk_chart_set_x_max(GtkChart *chart, double x_max);
+EXPORT void gtk_chart_set_y_max(GtkChart *chart, double y_max);
+EXPORT void gtk_chart_set_width(GtkChart *chart, int width);
+EXPORT void gtk_chart_plot_point(GtkChart *chart, double x, double y);
+EXPORT void gtk_chart_set_value(GtkChart *chart, double value);
+EXPORT void gtk_chart_set_value_min(GtkChart *chart, double value);
+EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value);
+EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename);
+EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename);
+EXPORT void gtk_chart_set_user_data(GtkChart *chart, void *user_data);
+EXPORT void * gtk_chart_get_user_data(GtkChart *chart);
 
 G_END_DECLS
