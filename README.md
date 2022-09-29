@@ -42,10 +42,13 @@ Couldn't find a chart widget library for GTK4 so created one.
 ## Usage
 
 ```
+#include <gtk/gtk.h>
+#include <gtkchart.h>
+...
 // Required for GtkChart to be recognized by builder
 gtk_chart_get_type();
 ...
-GtkWidget *chart = gtk_chart_new();
+GtkChart *chart = GTK_CHART(gtk_chart_new());
 gtk_chart_set_type(chart, GTK_CHART_TYPE_LINE);
 gtk_chart_set_title(chart, "Title");
 gtk_chart_set_label(chart, "Label");
