@@ -1,5 +1,7 @@
 # GtkChart - a chart widget for GTK4
 
+[Screencast from 2022-09-30 16-06-43 - gtkchart-fixed.webm](https://user-images.githubusercontent.com/353407/193289610-34b59005-1bc7-4f60-ba94-ecf34d601a4b.webm)
+
 ## Introduction
 
 The beginnings of a small chart widget library for GTK4.
