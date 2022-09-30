@@ -69,7 +69,7 @@ static gpointer producer_function(gpointer user_data)
         point.x = x;
         point.y = y;
         g_idle_add(gui_chart_plot_thread, &point);
-        usleep(10*1000);
+        usleep(20*1000);
         x += 0.1;
     }
 
