@@ -7,7 +7,14 @@ libgtk_dep = dependency('gtk4', version: '>= 4.5.0', required: true,
                                            'demos=false',
                                            'build-examples=false',
                                            'build-tests=false'])
-demo_deps = [libgtk_dep, libm_dep]
+
+libadwaita_dep = dependency('libadwaita-1', version: '>= 1.0.1', required: true,
+                             fallback : ['libadwaita', 'libadwaita_dep'],
+                             default_options: ['introspection=disabled',
+                                               'examples=false',
+                                               'tests=false'])
+
+demo_deps = [libm_dep, libgtk_dep, libadwaita_dep]
 
 executable('gtkchart-demo',
            'gtkchart-demo.c',
