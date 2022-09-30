@@ -70,22 +70,6 @@ gchar *font_name;
 
 G_DEFINE_TYPE (GtkChart, gtk_chart, GTK_TYPE_WIDGET)
 
-void gtk_chart_get_theme_colors (GtkWidget *parent)
-{
-    GtkStyleContext *context = gtk_widget_get_style_context (parent);
-    gtk_style_context_lookup_color (context, "theme_fg_color", &fg_color);
-    gtk_style_context_lookup_color (context, "theme_selected_bg_color", &line_color);
-    gtk_style_context_lookup_color (context, "theme_fg_color", &grid_color);
-    grid_color.alpha = 0.1;
-}
-
-static void gtk_chart_set_theme_colors (GtkSettings *widget_settings G_GNUC_UNUSED,
-                                        GParamSpec *pspec G_GNUC_UNUSED,
-                                        GtkChart *self)
-{
-    gtk_chart_get_theme_colors (&self->parent_instance);
-}
-
 static void gtk_chart_init (GtkChart *self)
 {
     // Defaults
@@ -101,18 +85,7 @@ static void gtk_chart_init (GtkChart *self)
     self->width = 500;
     self->snapshot = NULL;
 
-    gtk_chart_get_theme_colors (&self->parent_instance);
-
     GtkSettings *widget_settings = gtk_widget_get_settings (&self->parent_instance);
-
-    g_signal_connect (widget_settings,
-                      "notify::gtk-application-prefer-dark-theme",
-                      G_CALLBACK (gtk_chart_set_theme_colors),
-                      self);
-    g_signal_connect (widget_settings,
-                      "notify::gtk-theme-name",
-                      G_CALLBACK (gtk_chart_set_theme_colors),
-                      self);
 
     // Get default font
     GValue font_name_value = G_VALUE_INIT;
@@ -691,6 +664,13 @@ static void gtk_chart_snapshot (GtkWidget   *widget,
 
     float width = gtk_widget_get_width (widget);
     float height = gtk_widget_get_height (widget);
+
+    // Update colors
+    GtkStyleContext *context = gtk_widget_get_style_context(&self->parent_instance);
+    gtk_style_context_get_color (context, &fg_color);
+    gtk_style_context_get_color (context, &grid_color);
+    gtk_style_context_lookup_color (context, "theme_selected_bg_color", &line_color);
+    grid_color.alpha = 0.1;
 
     // Draw various chart types
     switch (self->type)
