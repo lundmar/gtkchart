@@ -63,7 +63,7 @@ struct _GtkChartClass
 };
 
 // Colors
-GdkRGBA bg_color, fg_color, line_color, grid_color;
+GdkRGBA fg_color, line_color, grid_color;
 
 // Font
 gchar *font_name;
@@ -73,7 +73,6 @@ G_DEFINE_TYPE (GtkChart, gtk_chart, GTK_TYPE_WIDGET)
 void gtk_chart_get_theme_colors (GtkWidget *parent)
 {
     GtkStyleContext *context = gtk_widget_get_style_context (parent);
-    gtk_style_context_lookup_color (context, "theme_bg_color", &bg_color);
     gtk_style_context_lookup_color (context, "theme_fg_color", &fg_color);
     gtk_style_context_lookup_color (context, "theme_selected_bg_color", &line_color);
     gtk_style_context_lookup_color (context, "theme_fg_color", &grid_color);
@@ -162,9 +161,6 @@ static void chart_draw_line_or_scatter(GtkChart *self,
 {
     cairo_text_extents_t extents;
     char value[20];
-
-    // Set background color
-    gtk_snapshot_append_color (snapshot, &bg_color, &GRAPHENE_RECT_INIT(0, 0, w, h));
 
     // Assume aspect ratio w:h = 2:1
 
@@ -428,9 +424,6 @@ static void chart_draw_number(GtkChart *self,
     cairo_text_extents_t extents;
     char value[20];
 
-    // Set background color
-    gtk_snapshot_append_color (snapshot, &bg_color, &GRAPHENE_RECT_INIT(0, 0, w, h));
-
     // Assume aspect ratio w:h = 1:1
 
     // Set up Cairo region
@@ -484,9 +477,6 @@ static void chart_draw_gauge_linear(GtkChart *self,
 {
     cairo_text_extents_t extents;
     char value[20];
-
-    // Set background color
-    gtk_snapshot_append_color (snapshot, &bg_color, &GRAPHENE_RECT_INIT(0, 0, w, h));
 
     // Assume aspect ratio w:h = 1:2
 
@@ -575,9 +565,6 @@ static void chart_draw_gauge_angular(GtkChart *self,
 {
     cairo_text_extents_t extents;
     char value[20];
-
-    // Set background color
-    gtk_snapshot_append_color (snapshot, &bg_color, &GRAPHENE_RECT_INIT(0, 0, w, h));
 
     // Assume aspect ratio w:h = 1:1
 
@@ -672,9 +659,6 @@ static void chart_draw_unknown_type(GtkChart *self,
 
     cairo_text_extents_t extents;
     const char *warning = "Unknown chart type";
-
-    // Set background color
-    gtk_snapshot_append_color (snapshot, &bg_color, &GRAPHENE_RECT_INIT(0, 0, w, h));
 
     // Set up Cairo region
     cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
