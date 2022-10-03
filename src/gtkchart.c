@@ -58,6 +58,7 @@ struct _GtkChart
     GdkRGBA text_color;
     GdkRGBA line_color;
     GdkRGBA grid_color;
+    GdkRGBA axis_color;
 };
 
 struct _GtkChartClass
@@ -87,6 +88,7 @@ static void gtk_chart_init (GtkChart *self)
     self->text_color.alpha = -1.0;
     self->line_color.alpha = -1.0;
     self->grid_color.alpha = -1.0;
+    self->axis_color.alpha = -1.0;
 
     GtkSettings *widget_settings = gtk_widget_get_settings (&self->parent_instance);
 
@@ -181,7 +183,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_restore(cr);
 
     // Draw x-axis
-    gdk_cairo_set_source_rgba (cr, &self->grid_color);
+    gdk_cairo_set_source_rgba (cr, &self->axis_color);
     cairo_set_line_width (cr, 1);
     cairo_move_to (cr, 0.1 * w, 0.2 * h);
     cairo_line_to (cr, 0.9 * w, 0.2 * h);
@@ -508,7 +510,7 @@ static void chart_draw_gauge_linear(GtkChart *self,
     cairo_restore(cr);
 
     // Draw minimum line
-    gdk_cairo_set_source_rgba (cr, &self->grid_color);
+    gdk_cairo_set_source_rgba (cr, &self->axis_color);
     cairo_move_to(cr, 0.375 * w, 0.1 * h);
     cairo_line_to(cr, 0.625 * w, 0.1 * h);
     cairo_set_line_width (cr, 1);
@@ -596,7 +598,7 @@ static void chart_draw_gauge_angular(GtkChart *self,
     cairo_restore(cr);
 
     // Draw minimum line
-    gdk_cairo_set_source_rgba (cr, &self->grid_color);
+    gdk_cairo_set_source_rgba (cr, &self->axis_color);
     cairo_move_to(cr, 0.08 * w, 0.25 * h);
     cairo_line_to(cr, 0.22 * w, 0.25 * h);
     cairo_set_line_width (cr, 1);
@@ -682,6 +684,10 @@ static void gtk_chart_snapshot (GtkWidget   *widget,
     {
         gtk_style_context_get_color(context, &self->grid_color);
         self->grid_color.alpha = 0.1;
+    }
+    if (self->axis_color.alpha == -1.0)
+    {
+        gtk_style_context_get_color(context, &self->axis_color);
     }
 
     // Draw various chart types
@@ -885,6 +891,10 @@ EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color)
     else if (strcmp(name, "grid_color") == 0)
     {
         return gdk_rgba_parse(&chart->grid_color, color);
+    }
+    else if (strcmp(name, "axis_color") == 0)
+    {
+        return gdk_rgba_parse(&chart->axis_color, color);
     }
 
     return false;
