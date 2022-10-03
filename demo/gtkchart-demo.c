@@ -46,9 +46,9 @@ static void activate_cb(GApplication *app, gpointer user_data)
     gtk_chart_set_y_max(chart, 10);
     gtk_chart_set_width(chart, 800);
 
-    //gtk_chart_set_color(chart, "fg_color", "red");
-    //gtk_chart_set_color(chart, "line_color", "blue");
-    //gtk_chart_set_color(chart, "grid_color", "green");
+    gtk_chart_set_color(chart, "text_color", "red");
+    gtk_chart_set_color(chart, "line_color", "blue");
+    gtk_chart_set_color(chart, "grid_color", "green");
 
     gtk_window_set_child(GTK_WINDOW(window), GTK_WIDGET(chart));
 
