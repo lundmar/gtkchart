@@ -55,15 +55,15 @@ struct _GtkChart
     void *user_data;
     GSList *point_list;
     GtkSnapshot *snapshot;
+    GdkRGBA fg_color;
+    GdkRGBA line_color;
+    GdkRGBA grid_color;
 };
 
 struct _GtkChartClass
 {
     GtkWidgetClass parent_class;
 };
-
-// Colors
-GdkRGBA fg_color, line_color, grid_color;
 
 // Font
 gchar *font_name;
@@ -84,6 +84,9 @@ static void gtk_chart_init (GtkChart *self)
     self->value_max = 100;
     self->width = 500;
     self->snapshot = NULL;
+    self->fg_color.alpha = -1.0;
+    self->line_color.alpha = -1.0;
+    self->grid_color.alpha = -1.0;
 
     GtkSettings *widget_settings = gtk_widget_get_settings (&self->parent_instance);
 
@@ -141,7 +144,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     cairo_set_tolerance (cr, 1.5);
-    gdk_cairo_set_source_rgba (cr, &fg_color);
+    gdk_cairo_set_source_rgba (cr, &self->fg_color);
     cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
@@ -288,7 +291,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_restore(cr);
 
     // Set color of grid
-    gdk_cairo_set_source_rgba (cr, &grid_color);
+    gdk_cairo_set_source_rgba (cr, &self->grid_color);
 
     // Draw grid x-line 25%
     cairo_set_line_width (cr, 1);
@@ -340,7 +343,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
 
     // Move coordinate system to (0,0) of drawn coordinate system
     cairo_translate(cr, 0.1 * w, 0.2 * h);
-    gdk_cairo_set_source_rgba (cr, &line_color);
+    gdk_cairo_set_source_rgba (cr, &self->line_color);
     cairo_set_line_width (cr, 2.0);
 
     // Calc scales
@@ -403,7 +406,7 @@ static void chart_draw_number(GtkChart *self,
     cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     cairo_set_tolerance (cr, 1.5);
-    gdk_cairo_set_source_rgba (cr, &fg_color);
+    gdk_cairo_set_source_rgba (cr, &self->fg_color);
     cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
@@ -457,7 +460,7 @@ static void chart_draw_gauge_linear(GtkChart *self,
     cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     cairo_set_tolerance (cr, 1.5);
-    gdk_cairo_set_source_rgba (cr, &fg_color);
+    gdk_cairo_set_source_rgba (cr, &self->fg_color);
     cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
@@ -505,7 +508,7 @@ static void chart_draw_gauge_linear(GtkChart *self,
     cairo_restore(cr);
 
     // Draw minimum line
-    gdk_cairo_set_source_rgba (cr, &grid_color);
+    gdk_cairo_set_source_rgba (cr, &self->grid_color);
     cairo_move_to(cr, 0.375 * w, 0.1 * h);
     cairo_line_to(cr, 0.625 * w, 0.1 * h);
     cairo_set_line_width (cr, 1);
@@ -521,7 +524,7 @@ static void chart_draw_gauge_linear(GtkChart *self,
     cairo_translate(cr, 0.5 * w, 0.1 * h);
 
     // Draw gauge line
-    gdk_cairo_set_source_rgba (cr, &line_color);
+    gdk_cairo_set_source_rgba (cr, &self->line_color);
     cairo_move_to(cr, 0, 0);
     float y_scale = (h - 2 * 0.1 * h) / self->value_max;
     cairo_set_line_width (cr, 0.2 * w);
@@ -545,7 +548,7 @@ static void chart_draw_gauge_angular(GtkChart *self,
     cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     //  cairo_set_tolerance (cr, 1.5);
-    gdk_cairo_set_source_rgba (cr, &fg_color);
+    gdk_cairo_set_source_rgba (cr, &self->fg_color);
     cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
@@ -593,7 +596,7 @@ static void chart_draw_gauge_angular(GtkChart *self,
     cairo_restore(cr);
 
     // Draw minimum line
-    gdk_cairo_set_source_rgba (cr, &grid_color);
+    gdk_cairo_set_source_rgba (cr, &self->grid_color);
     cairo_move_to(cr, 0.08 * w, 0.25 * h);
     cairo_line_to(cr, 0.22 * w, 0.25 * h);
     cairo_set_line_width (cr, 1);
@@ -609,7 +612,7 @@ static void chart_draw_gauge_angular(GtkChart *self,
     cairo_scale(cr, 1, -1);
 
     // Draw arc
-    gdk_cairo_set_source_rgba (cr, &line_color);
+    gdk_cairo_set_source_rgba (cr, &self->line_color);
     double xc = 0.5 * w;
     double yc = -0.25 * h;
     double radius = 0.35 * w;
@@ -635,7 +638,7 @@ static void chart_draw_unknown_type(GtkChart *self,
 
     // Set up Cairo region
     cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
-    gdk_cairo_set_source_rgba (cr, &fg_color);
+    gdk_cairo_set_source_rgba (cr, &self->fg_color);
     cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
@@ -667,10 +670,19 @@ static void gtk_chart_snapshot (GtkWidget   *widget,
 
     // Update colors
     GtkStyleContext *context = gtk_widget_get_style_context(&self->parent_instance);
-    gtk_style_context_get_color (context, &fg_color);
-    gtk_style_context_get_color (context, &grid_color);
-    gtk_style_context_lookup_color (context, "theme_selected_bg_color", &line_color);
-    grid_color.alpha = 0.1;
+    if (self->fg_color.alpha == -1.0)
+    {
+        gtk_style_context_get_color(context, &self->fg_color);
+    }
+    if (self->line_color.alpha == -1.0)
+    {
+        gtk_style_context_lookup_color (context, "theme_selected_bg_color", &self->line_color);
+    }
+    if (self->grid_color.alpha == -1.0)
+    {
+        gtk_style_context_get_color(context, &self->grid_color);
+        self->grid_color.alpha = 0.1;
+    }
 
     // Draw various chart types
     switch (self->type)
@@ -855,4 +867,25 @@ EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename)
     g_object_unref(paintable);
 
     return true;
+}
+
+EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color)
+{
+    g_assert_nonnull(chart);
+    g_assert_nonnull(name);
+
+    if (strcmp(name, "fg_color") == 0)
+    {
+        return gdk_rgba_parse(&chart->fg_color, color);
+    }
+    else if (strcmp(name, "line_color") == 0)
+    {
+        return gdk_rgba_parse(&chart->line_color, color);
+    }
+    else if (strcmp(name, "grid_color") == 0)
+    {
+        return gdk_rgba_parse(&chart->grid_color, color);
+    }
+
+    return false;
 }
