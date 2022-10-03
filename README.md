@@ -38,7 +38,6 @@ Couldn't find a chart widget library for GTK4 so created one.
    * Introduce gtk\_chart\_set\_y\_min()
  * Make charts zoomable
  * Make chart axes autoscale depending on plot value
- * Make colours configurable
  * Etc.
 
 ## Usage
