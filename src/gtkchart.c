@@ -59,6 +59,7 @@ struct _GtkChart
     GdkRGBA line_color;
     GdkRGBA grid_color;
     GdkRGBA axis_color;
+    gchar *font_name;
 };
 
 struct _GtkChartClass
@@ -66,12 +67,9 @@ struct _GtkChartClass
     GtkWidgetClass parent_class;
 };
 
-// Font
-gchar *font_name;
-
 G_DEFINE_TYPE (GtkChart, gtk_chart, GTK_TYPE_WIDGET)
 
-static void gtk_chart_init (GtkChart *self)
+static void gtk_chart_init(GtkChart *self)
 {
     // Defaults
     self->type = GTK_CHART_TYPE_UNKNOWN;
@@ -89,14 +87,7 @@ static void gtk_chart_init (GtkChart *self)
     self->line_color.alpha = -1.0;
     self->grid_color.alpha = -1.0;
     self->axis_color.alpha = -1.0;
-
-    GtkSettings *widget_settings = gtk_widget_get_settings (&self->parent_instance);
-
-    // Get default font
-    GValue font_name_value = G_VALUE_INIT;
-    g_object_get_property (G_OBJECT (widget_settings), "gtk-font-name", &font_name_value);
-    font_name = g_strdup_value_contents (&font_name_value);
-    font_name = &g_strsplit (font_name, " ", 2)[0][1];
+    self->font_name = NULL;
 
     //gtk_widget_init_template (GTK_WIDGET (self));
 }
@@ -147,7 +138,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     cairo_set_tolerance (cr, 1.5);
     gdk_cairo_set_source_rgba (cr, &self->text_color);
-    cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
     cairo_translate(cr, 0, h);
@@ -409,7 +400,7 @@ static void chart_draw_number(GtkChart *self,
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     cairo_set_tolerance (cr, 1.5);
     gdk_cairo_set_source_rgba (cr, &self->text_color);
-    cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
     cairo_translate(cr, 0, h);
@@ -463,7 +454,7 @@ static void chart_draw_gauge_linear(GtkChart *self,
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     cairo_set_tolerance (cr, 1.5);
     gdk_cairo_set_source_rgba (cr, &self->text_color);
-    cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
     cairo_translate(cr, 0, h);
@@ -551,7 +542,7 @@ static void chart_draw_gauge_angular(GtkChart *self,
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
     //  cairo_set_tolerance (cr, 1.5);
     gdk_cairo_set_source_rgba (cr, &self->text_color);
-    cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
     cairo_translate(cr, 0, h);
@@ -641,7 +632,7 @@ static void chart_draw_unknown_type(GtkChart *self,
     // Set up Cairo region
     cairo_t * cr = gtk_snapshot_append_cairo (snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
     gdk_cairo_set_source_rgba (cr, &self->text_color);
-    cairo_select_font_face (cr, font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     // Move coordinate system to bottom left
     cairo_translate(cr, 0, h);
@@ -670,7 +661,7 @@ static void gtk_chart_snapshot (GtkWidget   *widget,
     float width = gtk_widget_get_width (widget);
     float height = gtk_widget_get_height (widget);
 
-    // Update colors
+    // Automatically update colors if none set
     GtkStyleContext *context = gtk_widget_get_style_context(&self->parent_instance);
     if (self->text_color.alpha == -1.0)
     {
@@ -688,6 +679,16 @@ static void gtk_chart_snapshot (GtkWidget   *widget,
     if (self->axis_color.alpha == -1.0)
     {
         gtk_style_context_get_color(context, &self->axis_color);
+    }
+
+    // Automatically update font if none set
+    if (self->font_name == NULL)
+    {
+        GtkSettings *widget_settings = gtk_widget_get_settings(&self->parent_instance);
+        GValue font_name_value = G_VALUE_INIT;
+        g_object_get_property(G_OBJECT (widget_settings), "gtk-font-name", &font_name_value);
+        self->font_name = g_strdup_value_contents(&font_name_value);
+        self->font_name = &g_strsplit(self->font_name, " ", 2)[0][1];
     }
 
     // Draw various chart types
@@ -898,4 +899,9 @@ EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color)
     }
 
     return false;
+}
+
+EXPORT void gtk_chart_set_font(GtkChart *chart, const char *name)
+{
+    chart->font_name = g_strdup(name);
 }

@@ -76,5 +76,6 @@ EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename);
 EXPORT void gtk_chart_set_user_data(GtkChart *chart, void *user_data);
 EXPORT void * gtk_chart_get_user_data(GtkChart *chart);
 EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color);
+EXPORT void gtk_chart_set_font(GtkChart *chart, const char *name);
 
 G_END_DECLS
