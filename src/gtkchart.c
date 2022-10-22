@@ -28,6 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ctype.h>
 #include "gtkchart.h"
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
@@ -88,6 +89,25 @@ static void gtk_chart_init(GtkChart *self)
     self->grid_color.alpha = -1.0;
     self->axis_color.alpha = -1.0;
     self->font_name = NULL;
+
+    // Automatically use GTK font
+    GtkSettings *widget_settings = gtk_widget_get_settings(&self->parent_instance);
+    GValue font_name_value = G_VALUE_INIT;
+    g_object_get_property(G_OBJECT (widget_settings), "gtk-font-name", &font_name_value);
+    gchar *font_string = g_strdup_value_contents(&font_name_value);
+
+    // Extract name of font from font string ("<name> <size>")
+    gchar *font_name = &font_string[1]; // Skip "
+    for (unsigned int i=0; i<strlen(font_name); i++)
+    {
+        if (isdigit((int)font_name[i]))
+        {
+            font_name[i-1] = 0;
+            break;
+        }
+    }
+    self->font_name = g_strdup(font_name);
+    g_free(font_string);
 
     //gtk_widget_init_template (GTK_WIDGET (self));
 }
@@ -681,16 +701,6 @@ static void gtk_chart_snapshot (GtkWidget   *widget,
         gtk_style_context_get_color(context, &self->axis_color);
     }
 
-    // Automatically update font if none set
-    if (self->font_name == NULL)
-    {
-        GtkSettings *widget_settings = gtk_widget_get_settings(&self->parent_instance);
-        GValue font_name_value = G_VALUE_INIT;
-        g_object_get_property(G_OBJECT (widget_settings), "gtk-font-name", &font_name_value);
-        self->font_name = g_strdup_value_contents(&font_name_value);
-        self->font_name = &g_strsplit(self->font_name, " ", 2)[0][1];
-    }
-
     // Draw various chart types
     switch (self->type)
     {
@@ -753,21 +763,54 @@ EXPORT void gtk_chart_set_type(GtkChart *chart, GtkChartType type)
 
 EXPORT void gtk_chart_set_title(GtkChart *chart, const char *title)
 {
+
+    g_assert_nonnull(chart);
+    g_assert_nonnull(title);
+
+    if (chart->title != NULL)
+    {
+        g_free(chart->title);
+    }
+
     chart->title = g_strdup(title);
 }
 
 EXPORT void gtk_chart_set_label(GtkChart *chart, const char *label)
 {
+    g_assert_nonnull(chart);
+    g_assert_nonnull(label);
+
+    if (chart->label != NULL)
+    {
+        g_free(chart->label);
+    }
+
     chart->label = g_strdup(label);
 }
 
 EXPORT void gtk_chart_set_x_label(GtkChart *chart, const char *x_label)
 {
+    g_assert_nonnull(chart);
+    g_assert_nonnull(x_label);
+
+    if (chart->x_label != NULL)
+    {
+        g_free(chart->x_label);
+    }
+
     chart->x_label = g_strdup(x_label);
 }
 
 EXPORT void gtk_chart_set_y_label(GtkChart *chart, const char *y_label)
 {
+    g_assert_nonnull(chart);
+    g_assert_nonnull(y_label);
+
+    if (chart->y_label != NULL)
+    {
+        g_free(chart->y_label);
+    }
+
     chart->y_label = g_strdup(y_label);
 }
 
@@ -903,5 +946,13 @@ EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color)
 
 EXPORT void gtk_chart_set_font(GtkChart *chart, const char *name)
 {
+    g_assert_nonnull(chart);
+    g_assert_nonnull(name);
+
+    if (chart->font_name != NULL)
+    {
+        g_free(chart->font_name);
+    }
+
     chart->font_name = g_strdup(name);
 }
