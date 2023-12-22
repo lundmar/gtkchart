@@ -10,7 +10,7 @@ This is a spinoff from the [lxi-tools](https://lxi-tools.github.io) project.
 
 Much can be improved but it is better than nothing.
 
-Looking for maintainer/contributors to help improve this library.
+### Looking for maintainers or contributors to help improve this library. Please reach out if interested!
 
 ## Motivation
 
