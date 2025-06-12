@@ -9,6 +9,8 @@
 #include <gtkchart.h>
 #include <adwaita.h>
 
+#define VIEWPORT_WIDTH 25  // Show 5 units of x-axis at a time
+
 static GtkChart *chart;
 static GMutex producer_mutex;
 
@@ -21,6 +23,12 @@ struct point_t
 static gboolean gui_chart_plot_thread(gpointer user_data)
 {
     struct point_t *point = user_data;
+
+    // Update the viewport to follow the latest data
+    if (point->x > gtk_chart_get_x_max(chart)) {
+        gtk_chart_set_x_min(chart, point->x - VIEWPORT_WIDTH);
+        gtk_chart_set_x_max(chart, point->x);
+    }
 
     gtk_chart_plot_point(chart, point->x, point->y);
 
@@ -42,7 +50,11 @@ static void activate_cb(GApplication *app, gpointer user_data)
     gtk_chart_set_label(chart, "Label");
     gtk_chart_set_x_label(chart, "X label [unit]");
     gtk_chart_set_y_label(chart, "Y label [unit]");
-    gtk_chart_set_x_max(chart, 100);
+
+    // Initial viewport setup
+    gtk_chart_set_x_min(chart, 0.0);
+    gtk_chart_set_x_max(chart, VIEWPORT_WIDTH);
+    gtk_chart_set_y_min(chart, 0.0);
     gtk_chart_set_y_max(chart, 10);
     gtk_chart_set_width(chart, 800);
 

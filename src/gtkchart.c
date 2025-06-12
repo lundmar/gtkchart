@@ -49,6 +49,8 @@ struct _GtkChart
     char *y_label;
     double x_max;
     double y_max;
+    double x_min;
+    double y_min;
     double value;
     double value_min;
     double value_max;
@@ -248,21 +250,23 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_restore(cr);
 
     // Draw x-axis value at 0% mark
+    g_snprintf(value, sizeof(value), "%.1f", self->x_min);
     cairo_set_font_size (cr, 8.0 * (w/650));
     cairo_text_extents(cr, "0", &extents);
     cairo_move_to (cr, 0.1 * w - extents.width/2, 0.16 * h);
     cairo_save(cr);
     cairo_scale(cr, 1, -1);
-    cairo_show_text (cr, "0");
+    cairo_show_text (cr, value);
     cairo_restore(cr);
 
     // Draw y-axis value at 0% mark
+    g_snprintf(value, sizeof(value), "%.1f", self->y_min);
     cairo_set_font_size (cr, 8.0 * (w/650));
     cairo_text_extents(cr, "0", &extents);
     cairo_move_to (cr, 0.091 * w - extents.width, 0.191 * h);
     cairo_save(cr);
     cairo_scale(cr, 1, -1);
-    cairo_show_text (cr, "0");
+    cairo_show_text (cr, value);
     cairo_restore(cr);
 
     // Draw y-axis value at 25% mark
@@ -359,31 +363,43 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     gdk_cairo_set_source_rgba (cr, &self->line_color);
     cairo_set_line_width (cr, 2.0);
 
-    // Calc scales
-    float x_scale = (w - 2 * 0.1 * w) / self->x_max;
-    float y_scale = (h - 2 * 0.2 * h) / self->y_max;
+    // Calc scales with min values taken into account
+    float x_scale = (w - 2 * 0.1 * w) / (self->x_max - self->x_min);
+    float y_scale = (h - 2 * 0.2 * h) / (self->y_max - self->y_min);
 
     // Draw data points from list
     GSList *l;
+    gboolean first_point = TRUE;
+
     for (l = self->point_list; l != NULL; l = l->next)
     {
         struct chart_point_t *point = l->data;
 
+        // Skip points outside the current viewport
+        if (point->x < self->x_min || point->x > self->x_max) {
+            continue;
+        }
+
+        // Adjust coordinates by min values
+        double x_coord = (point->x - self->x_min) * x_scale;
+        double y_coord = (point->y - self->y_min) * y_scale;
+
         switch (self->type)
         {
             case GTK_CHART_TYPE_LINE:
-                if (l == self->point_list)
+                if (first_point)
                 {
-                    // Move to first point
-                    cairo_move_to(cr, point->x * x_scale, point->y * y_scale);
+                    // Move to first visible point
+                    cairo_move_to(cr, x_coord, y_coord);
+                    first_point = FALSE;
                 }
                 else
                 {
                     // Draw line to next point
-                    cairo_line_to(cr, point->x * x_scale, point->y * y_scale);
+                    cairo_line_to(cr, x_coord, y_coord);
                     cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
                     cairo_stroke(cr);
-                    cairo_move_to(cr, point->x * x_scale, point->y * y_scale);
+                    cairo_move_to(cr, x_coord, y_coord);
                 }
                 break;
 
@@ -395,7 +411,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
                 // Draw point
                 cairo_set_line_width(cr, 3);
                 cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-                cairo_move_to(cr, point->x * x_scale, point->y * y_scale);
+                cairo_move_to(cr, x_coord, y_coord);
                 cairo_close_path (cr);
                 cairo_stroke (cr);
                 break;
@@ -824,6 +840,16 @@ EXPORT void gtk_chart_set_y_max(GtkChart *chart, double y_max)
     chart->y_max = y_max;
 }
 
+EXPORT void gtk_chart_set_x_min(GtkChart *chart, double x_min)
+{
+    chart->x_min = x_min;
+}
+
+EXPORT void gtk_chart_set_y_min(GtkChart *chart, double y_min)
+{
+    chart->y_min = y_min;
+}
+
 EXPORT void gtk_chart_set_width(GtkChart *chart, int width)
 {
     chart->width = width;
@@ -865,6 +891,11 @@ EXPORT void gtk_chart_set_value_min(GtkChart *chart, double value)
 EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value)
 {
     chart->value_max = value;
+}
+
+EXPORT double gtk_chart_get_x_max(GtkChart *chart)
+{
+    return chart->x_max;
 }
 
 EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename)

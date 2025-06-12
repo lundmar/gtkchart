@@ -66,6 +66,9 @@ EXPORT void gtk_chart_set_x_label(GtkChart *chart, const char *x_label);
 EXPORT void gtk_chart_set_y_label(GtkChart *chart, const char *y_label);
 EXPORT void gtk_chart_set_x_max(GtkChart *chart, double x_max);
 EXPORT void gtk_chart_set_y_max(GtkChart *chart, double y_max);
+EXPORT void gtk_chart_set_x_min(GtkChart *chart, double x_min);
+EXPORT void gtk_chart_set_y_min(GtkChart *chart, double y_min);
+EXPORT double gtk_chart_get_x_max(GtkChart *chart);
 EXPORT void gtk_chart_set_width(GtkChart *chart, int width);
 EXPORT void gtk_chart_plot_point(GtkChart *chart, double x, double y);
 EXPORT void gtk_chart_set_value(GtkChart *chart, double value);
@@ -79,3 +82,4 @@ EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color);
 EXPORT void gtk_chart_set_font(GtkChart *chart, const char *name);
 
 G_END_DECLS
+
