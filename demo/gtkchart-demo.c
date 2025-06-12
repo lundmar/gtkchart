@@ -24,7 +24,7 @@ static gboolean gui_chart_plot_thread(gpointer user_data)
 {
     struct point_t *point = user_data;
 
-    // Update the viewport to follow the latest data
+    // Update x-axis viewport to follow the latest data
     if (point->x > gtk_chart_get_x_max(chart)) {
         gtk_chart_set_x_min(chart, point->x - VIEWPORT_WIDTH);
         gtk_chart_set_x_max(chart, point->x);
@@ -46,16 +46,16 @@ static void activate_cb(GApplication *app, gpointer user_data)
 
     chart = GTK_CHART(gtk_chart_new());
     gtk_chart_set_type(chart, GTK_CHART_TYPE_LINE);
-    gtk_chart_set_title(chart, "Sine signal, f(x) = 5 + 3sin(x)");
+    gtk_chart_set_title(chart, "Sine signal, f(x) = 3sin(x)");
     gtk_chart_set_label(chart, "Label");
     gtk_chart_set_x_label(chart, "X label [unit]");
     gtk_chart_set_y_label(chart, "Y label [unit]");
 
-    // Initial viewport setup
+    // Set fixed y-axis range to show complete sine wave
     gtk_chart_set_x_min(chart, 0.0);
     gtk_chart_set_x_max(chart, VIEWPORT_WIDTH);
-    gtk_chart_set_y_min(chart, 0.0);
-    gtk_chart_set_y_max(chart, 10);
+    gtk_chart_set_y_max(chart, 3.5);   // Above maximum of sine wave
+    gtk_chart_set_y_min(chart, -3.5);  // Below minimum of sine wave
     gtk_chart_set_width(chart, 800);
 
     // gtk_chart_set_color(chart, "text_color", "red");
@@ -80,10 +80,10 @@ static gpointer producer_function(gpointer user_data)
 
     g_mutex_lock(&producer_mutex);
 
-    // Plot demo sine signal
+    // Plot demo sine wave with negative values
     while (x < 100)
     {
-        y = 5.0 + 3.0*sin(x);
+        y = 3.0 * sin(x);  // Will oscillate between -3 and +3
         point.x = x;
         point.y = y;
         g_idle_add(gui_chart_plot_thread, &point);

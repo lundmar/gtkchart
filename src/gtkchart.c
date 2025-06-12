@@ -262,7 +262,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     // Draw y-axis value at 0% mark
     g_snprintf(value, sizeof(value), "%.1f", self->y_min);
     cairo_set_font_size (cr, 8.0 * (w/650));
-    cairo_text_extents(cr, "0", &extents);
+    cairo_text_extents(cr, value, &extents);
     cairo_move_to (cr, 0.091 * w - extents.width, 0.191 * h);
     cairo_save(cr);
     cairo_scale(cr, 1, -1);
@@ -270,7 +270,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_restore(cr);
 
     // Draw y-axis value at 25% mark
-    g_snprintf(value, sizeof(value), "%.1f", self->y_max/4);
+    g_snprintf(value, sizeof(value), "%.1f", self->y_min + (self->y_max - self->y_min) * 0.25);
     cairo_set_font_size (cr, 8.0 * (w/650));
     cairo_text_extents(cr, value, &extents);
     cairo_move_to (cr, 0.091 * w - extents.width, 0.34 * h);
@@ -280,7 +280,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_restore(cr);
 
     // Draw y-axis value at 50% mark
-    g_snprintf(value, sizeof(value), "%.1f", self->y_max/2);
+    g_snprintf(value, sizeof(value), "%.1f", self->y_min + (self->y_max - self->y_min) * 0.5);
     cairo_set_font_size (cr, 8.0 * (w/650));
     cairo_text_extents(cr, value, &extents);
     cairo_move_to (cr, 0.091 * w - extents.width, 0.49 * h);
@@ -290,7 +290,7 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_restore(cr);
 
     // Draw y-axis value at 75% mark
-    g_snprintf(value, sizeof(value), "%.1f", (self->y_max/4) * 3);
+    g_snprintf(value, sizeof(value), "%.1f", self->y_min + (self->y_max - self->y_min) * 0.75);
     cairo_set_font_size (cr, 8.0 * (w/650));
     cairo_text_extents(cr, value, &extents);
     cairo_move_to (cr, 0.091 * w - extents.width, 0.64 * h);
@@ -369,16 +369,16 @@ static void chart_draw_line_or_scatter(GtkChart *self,
 
     // Draw data points from list
     GSList *l;
-    gboolean first_point = TRUE;
+    gboolean last_point_visible = FALSE;
+    double last_x = 0, last_y = 0;
 
     for (l = self->point_list; l != NULL; l = l->next)
     {
         struct chart_point_t *point = l->data;
-
-        // Skip points outside the current viewport
-        if (point->x < self->x_min || point->x > self->x_max) {
-            continue;
-        }
+        gboolean point_in_viewport = (point->x >= self->x_min &&
+                                    point->x <= self->x_max &&
+                                    point->y >= self->y_min &&
+                                    point->y <= self->y_max);
 
         // Adjust coordinates by min values
         double x_coord = (point->x - self->x_min) * x_scale;
@@ -387,33 +387,41 @@ static void chart_draw_line_or_scatter(GtkChart *self,
         switch (self->type)
         {
             case GTK_CHART_TYPE_LINE:
-                if (first_point)
+                if (point_in_viewport)
                 {
-                    // Move to first visible point
-                    cairo_move_to(cr, x_coord, y_coord);
-                    first_point = FALSE;
+                    if (!last_point_visible)
+                    {
+                        // Start a new line segment when coming back into view
+                        cairo_move_to(cr, x_coord, y_coord);
+                    }
+                    else
+                    {
+                        // Continue the line if previous point was visible
+                        cairo_line_to(cr, x_coord, y_coord);
+                        cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+                        cairo_stroke(cr);
+                        cairo_move_to(cr, x_coord, y_coord);
+                    }
+                    last_point_visible = TRUE;
+                    last_x = x_coord;
+                    last_y = y_coord;
                 }
                 else
                 {
-                    // Draw line to next point
-                    cairo_line_to(cr, x_coord, y_coord);
-                    cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
-                    cairo_stroke(cr);
-                    cairo_move_to(cr, x_coord, y_coord);
+                    last_point_visible = FALSE;
                 }
                 break;
 
             case GTK_CHART_TYPE_SCATTER:
-                // Draw square
-                //cairo_rectangle (cr, point->x * x_scale, point->y * y_scale, 4, 4);
-                //cairo_fill(cr);
-
-                // Draw point
-                cairo_set_line_width(cr, 3);
-                cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-                cairo_move_to(cr, x_coord, y_coord);
-                cairo_close_path (cr);
-                cairo_stroke (cr);
+                if (point_in_viewport)
+                {
+                    // Draw point
+                    cairo_set_line_width(cr, 3);
+                    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+                    cairo_move_to(cr, x_coord, y_coord);
+                    cairo_close_path(cr);
+                    cairo_stroke(cr);
+                }
                 break;
         }
     }
@@ -896,6 +904,11 @@ EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value)
 EXPORT double gtk_chart_get_x_max(GtkChart *chart)
 {
     return chart->x_max;
+}
+
+EXPORT double gtk_chart_get_y_min(GtkChart *chart)
+{
+    return chart->y_min;
 }
 
 EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename)
