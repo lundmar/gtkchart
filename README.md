@@ -10,7 +10,10 @@ This is a spinoff from the [lxi-tools](https://lxi-tools.github.io) project.
 
 Much can be improved but it is better than nothing.
 
-### Looking for maintainers or contributors to help improve this library. Please reach out if interested!
+```diff
+! Looking for maintainers or contributors to help improve this library.
+! Please reach out if interested.
+```
 
 ## Motivation
 
@@ -33,9 +36,7 @@ Couldn't find a chart widget library for GTK4 so created one.
 ## Todo
 
  * Optimize Cairo/snapshot code
- * Make charts handle negative axis ranges
-   * Introduce gtk\_chart\_set\_x\_min()
-   * Introduce gtk\_chart\_set\_y\_min()
+ * Make line and gauge charts handle negative axis ranges
  * Make charts zoomable
  * Make chart axes autoscale depending on plot value
  * Etc.
