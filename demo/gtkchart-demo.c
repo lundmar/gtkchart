@@ -66,14 +66,14 @@ static void activate_cb(GApplication *app, gpointer user_data)
 
     gtk_window_set_child(GTK_WINDOW(window), GTK_WIDGET(chart));
 
-    gtk_widget_show(window);
+    gtk_window_present(GTK_WINDOW(window));
 
     g_mutex_unlock(&producer_mutex);
 }
 
 static gpointer producer_function(gpointer user_data)
 {
-    (void)user_data;
+    (void) user_data;
     struct point_t point;
     double x = 0;
     double y;

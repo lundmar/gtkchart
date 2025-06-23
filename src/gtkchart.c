@@ -30,6 +30,7 @@
 
 #include <ctype.h>
 #include "gtkchart.h"
+#include "glib.h"
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
@@ -137,10 +138,9 @@ static void gtk_chart_dispose (GObject *object)
     g_free(self->x_label);
     g_free(self->y_label);
 
-    gdk_display_sync(gdk_display_get_default());
+    g_clear_slist(&self->point_list, g_free);
 
-    g_slist_free_full(g_steal_pointer(&self->point_list), g_free);
-    g_slist_free(self->point_list);
+    gdk_display_sync(gdk_display_get_default());
 
     G_OBJECT_CLASS (gtk_chart_parent_class)->dispose (object);
 }
