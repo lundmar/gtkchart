@@ -928,6 +928,11 @@ EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename, GError **e
     return g_file_set_contents(filename, csv->str, csv->len, error);
 }
 
+EXPORT GSList * gtk_chart_get_points(GtkChart *chart)
+{
+  return chart->point_list;
+}
+
 EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename, GError **error)
 {
     int width = gtk_widget_get_width (GTK_WIDGET(chart));

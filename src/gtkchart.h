@@ -43,6 +43,8 @@
   #endif
 #endif
 
+typedef struct chart_point_t ChartPoint;
+
 G_BEGIN_DECLS
 
 #define GTK_TYPE_CHART (gtk_chart_get_type ())
@@ -77,6 +79,7 @@ EXPORT void gtk_chart_set_value_min(GtkChart *chart, double value);
 EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value);
 EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename, GError **error);
 EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename, GError **error);
+EXPORT GSList * gtk_chart_get_points(GtkChart *chart);
 EXPORT void gtk_chart_set_user_data(GtkChart *chart, void *user_data);
 EXPORT void * gtk_chart_get_user_data(GtkChart *chart);
 EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color);
