@@ -911,34 +911,24 @@ EXPORT double gtk_chart_get_y_min(GtkChart *chart)
     return chart->y_min;
 }
 
-EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename)
+EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename, GError **error)
 {
     struct chart_point_t *point;
     GSList *l;
+    g_autoptr (GString) csv;
 
-    // Open file
-    FILE *file = fopen(filename, "w"); // write only
+    csv = g_string_new(NULL);
 
-    if (file == NULL)
-    {
-        g_print("Error: Could not open file\n");
-        return false;
-    }
-
-    // Write CSV data
     for (l = chart->point_list; l != NULL; l = l->next)
     {
         point = l->data;
-        fprintf(file, "%f,%f\n", point->x, point->y);
+        g_string_append_printf(csv, "%f,%f\n", point->x, point->y);
     }
 
-    // Close file
-    fclose(file);
-
-    return true;
+    return g_file_set_contents(filename, csv->str, csv->len, error);
 }
 
-EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename)
+EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename, GError **error)
 {
     int width = gtk_widget_get_width (GTK_WIDGET(chart));
     int height = gtk_widget_get_height (GTK_WIDGET(chart));
@@ -949,7 +939,8 @@ EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename)
     gdk_paintable_snapshot (paintable, snapshot, width, height);
     GskRenderNode *node = gtk_snapshot_free_to_node (snapshot);
     GskRenderer *renderer = gsk_cairo_renderer_new ();
-    gsk_renderer_realize (renderer, NULL, NULL);
+    if (!gsk_renderer_realize (renderer, NULL, error))
+      return false;
     GdkTexture *texture = gsk_renderer_render_texture (renderer, node, NULL);
     gdk_texture_save_to_png (texture, filename);
 
