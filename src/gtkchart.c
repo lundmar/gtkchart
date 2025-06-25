@@ -901,6 +901,16 @@ EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value)
     chart->value_max = value;
 }
 
+EXPORT double gtk_chart_get_value_min(GtkChart *chart)
+{
+    return chart->value_min;
+}
+
+EXPORT double gtk_chart_get_value_max(GtkChart *chart)
+{
+    return chart->value_max;
+}
+
 EXPORT double gtk_chart_get_x_max(GtkChart *chart)
 {
     return chart->x_max;
