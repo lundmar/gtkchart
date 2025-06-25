@@ -69,7 +69,7 @@ gtk_chart_save_csv(chart, "chart0.csv");
 gtk_chart_save_png(chart, "chart0.png");
 ```
 
-See the [demo application](demo/gtkchart-demo.c) for more details.
+See the [demo application](demo/demo_box.c) for more details.
 
 ## Chart Types
 
