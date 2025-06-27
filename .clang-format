@@ -1,0 +1,33 @@
+Language: C
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+ColumnLimit: 100
+ContinuationIndentWidth: 4
+
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true
+AlignTrailingComments: true
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+BreakBeforeBraces: Attach
+BraceWrapping:
+  AfterFunction: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterEnum: false
+  AfterExternBlock: false
+  BeforeElse: true
+  IndentBraces: false
+
+PointerAlignment: Left
+SpaceAfterCStyleCast: true
+SpacesBeforeTrailingComments: 1
+
+ConstructorInitializerIndentWidth: 4
+
+SortIncludes: false
