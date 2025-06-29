@@ -74,14 +74,20 @@ EXPORT double gtk_chart_get_x_max(GtkChart *chart);
 EXPORT double gtk_chart_get_y_min(GtkChart *chart);
 EXPORT void gtk_chart_set_width(GtkChart *chart, int width);
 EXPORT void gtk_chart_plot_point(GtkChart *chart, double x, double y);
+
 EXPORT void gtk_chart_set_value(GtkChart *chart, double value);
 EXPORT void gtk_chart_set_value_min(GtkChart *chart, double value);
 EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value);
+EXPORT double gtk_chart_get_value_min(GtkChart *chart);
+EXPORT double gtk_chart_get_value_max(GtkChart *chart);
+
 EXPORT bool gtk_chart_save_csv(GtkChart *chart, const char *filename, GError **error);
 EXPORT bool gtk_chart_save_png(GtkChart *chart, const char *filename, GError **error);
 EXPORT GSList * gtk_chart_get_points(GtkChart *chart);
+
 EXPORT void gtk_chart_set_user_data(GtkChart *chart, void *user_data);
 EXPORT void * gtk_chart_get_user_data(GtkChart *chart);
+
 EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color);
 EXPORT void gtk_chart_set_font(GtkChart *chart, const char *name);
 

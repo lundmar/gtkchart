@@ -169,7 +169,8 @@ static void chart_draw_line_or_scatter(GtkChart *self,
     cairo_scale(cr, 1, -1);
 
     // Draw title
-    cairo_set_font_size (cr, 15.0 * (w/650));
+    double title_font_size = 0.05 * h;  // 5% of total height
+    cairo_set_font_size (cr, title_font_size);
     cairo_text_extents(cr, self->title, &extents);
     cairo_move_to (cr, 0.5 * w - extents.width/2, 0.9 * h - extents.height/2);
     cairo_save(cr);
@@ -453,7 +454,8 @@ static void chart_draw_number(GtkChart *self,
     cairo_scale(cr, 1, -1);
 
     // Draw title
-    cairo_set_font_size (cr, 15.0 * (w/650));
+    double title_font_size = 0.05 * h;  // 5% of total height
+    cairo_set_font_size (cr, title_font_size);
     cairo_text_extents(cr, self->title, &extents);
     cairo_move_to (cr, 0.5 * w - extents.width/2, 0.9 * h - extents.height/2);
     cairo_save(cr);
@@ -507,7 +509,8 @@ static void chart_draw_gauge_linear(GtkChart *self,
     cairo_scale(cr, 1, -1);
 
     // Draw title
-    cairo_set_font_size (cr, 15.0 * (2*w/650));
+    double title_font_size = 0.05 * h;  // 5% of total height
+    cairo_set_font_size (cr, title_font_size);
     cairo_text_extents(cr, self->title, &extents);
     cairo_move_to (cr, 0.5 * w - extents.width/2, 0.95 * h - extents.height/2);
     cairo_save(cr);
@@ -595,7 +598,8 @@ static void chart_draw_gauge_angular(GtkChart *self,
     cairo_scale(cr, 1, -1);
 
     // Draw title
-    cairo_set_font_size (cr, 15.0 * (2*w/650));
+    double title_font_size = 0.05 * h;  // 5% of total height
+    cairo_set_font_size (cr, title_font_size);
     cairo_text_extents(cr, self->title, &extents);
     cairo_move_to (cr, 0.5 * w - extents.width/2, 0.9 * h - extents.height/2);
     cairo_save(cr);
@@ -685,7 +689,8 @@ static void chart_draw_unknown_type(GtkChart *self,
     cairo_scale(cr, 1, -1);
 
     // Draw title
-    cairo_set_font_size (cr, 30.0 * (w/650));
+    double title_font_size = 0.05 * h;  // 5% of total height
+    cairo_set_font_size (cr, title_font_size);
     cairo_text_extents(cr, warning, &extents);
     cairo_move_to (cr, 0.5 * w - extents.width/2, 0.5 * h - extents.height/2);
     cairo_save(cr);
@@ -899,6 +904,16 @@ EXPORT void gtk_chart_set_value_min(GtkChart *chart, double value)
 EXPORT void gtk_chart_set_value_max(GtkChart *chart, double value)
 {
     chart->value_max = value;
+}
+
+EXPORT double gtk_chart_get_value_min(GtkChart *chart)
+{
+    return chart->value_min;
+}
+
+EXPORT double gtk_chart_get_value_max(GtkChart *chart)
+{
+    return chart->value_max;
 }
 
 EXPORT double gtk_chart_get_x_max(GtkChart *chart)

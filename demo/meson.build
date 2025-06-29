@@ -17,7 +17,9 @@ libadwaita_dep = dependency('libadwaita-1', version: '>= 1.0.1', required: true,
 demo_deps = [libm_dep, libgtk_dep, libadwaita_dep]
 
 executable('gtkchart-demo',
-           'gtkchart-demo.c',
+           'demo_box.c',
+           'demo_box.h',
+           'main.c',
             dependencies: demo_deps,
             include_directories: include_directories('../src'),
             link_with: libgtkchart,
