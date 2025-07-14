@@ -40,6 +40,12 @@ struct chart_point_t
     double y;
 };
 
+struct chart_slice_t
+{
+    double value;
+    GdkRGBA color;
+};
+
 struct _GtkChart
 {
     GtkWidget parent_instance;
@@ -58,6 +64,7 @@ struct _GtkChart
     int width;
     void *user_data;
     GSList *point_list;
+    GSList *slice_list;
     GtkSnapshot *snapshot;
     GdkRGBA text_color;
     GdkRGBA line_color;
@@ -139,6 +146,8 @@ static void gtk_chart_dispose (GObject *object)
     g_free(self->y_label);
 
     g_clear_slist(&self->point_list, g_free);
+
+    g_clear_slist(&self->slice_list, g_free);
 
     gdk_display_sync(gdk_display_get_default());
 
@@ -667,6 +676,73 @@ static void chart_draw_gauge_angular(GtkChart *self,
     cairo_destroy (cr);
 }
 
+static void chart_draw_pie(GtkChart *self,
+                                     GtkSnapshot *snapshot,
+                                     float h,
+                                     float w)
+{
+    cairo_text_extents_t extents;
+
+    // Set up Cairo region
+    cairo_t *cr = gtk_snapshot_append_cairo(snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h));
+
+    cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
+
+    gdk_cairo_set_source_rgba (cr, &self->text_color);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+
+    // Move coordinate system to bottom left
+    cairo_translate(cr, 0, h);
+
+    // Invert y-axis
+    cairo_scale(cr, 1, -1);
+
+    // Draw title
+    cairo_set_font_size (cr, MIN(w, h) / 20);
+    cairo_text_extents(cr, self->title, &extents);
+    cairo_move_to (cr, 0.5 * w - extents.width/2, 0.95 * h - extents.height/2);
+    cairo_save(cr);
+    cairo_scale(cr, 1, -1);
+    cairo_show_text (cr, self->title);
+    cairo_restore(cr);
+
+    double radius = MIN(w, h) / 2.5; // margin
+
+    double total = 0.0;
+    GSList *l;
+    for(l = self->slice_list; l != NULL; l = l->next)
+    {
+        struct chart_slice_t *slice = l->data;
+        total += slice->value;
+    }
+
+    if(total <= 0.0)
+    {
+        cairo_destroy(cr);
+        return;
+    }
+
+    double start_angle = 0.0;
+
+    for (l = self->slice_list; l != NULL; l = l->next)
+    {
+        struct chart_slice_t *slice = l->data;
+
+        // Angle of the slice proportional to its value
+        double slice_angle = (slice->value / total) * 2.0 * G_PI;
+
+        cairo_set_source_rgba(cr, slice->color.red, slice->color.green, slice->color.blue, slice->color.alpha);
+
+        cairo_move_to(cr, w / 2, h / 2);
+        cairo_arc(cr, w / 2, h / 2, radius, start_angle, start_angle + slice_angle);
+        cairo_close_path(cr);
+        cairo_fill(cr);
+
+        start_angle += slice_angle;
+    }
+    cairo_destroy(cr);
+}
+
 static void chart_draw_unknown_type(GtkChart *self,
                                     GtkSnapshot *snapshot,
                                     float h,
@@ -748,6 +824,10 @@ static void gtk_chart_snapshot (GtkWidget   *widget,
 
         case GTK_CHART_TYPE_GAUGE_ANGULAR:
             chart_draw_gauge_angular(self, snapshot, height, width);
+            break;
+
+        case GTK_CHART_TYPE_PIE:
+            chart_draw_pie(self, snapshot, height, width);
             break;
 
         default:
@@ -877,6 +957,23 @@ EXPORT void gtk_chart_plot_point(GtkChart *chart, double x, double y)
 
     // Add point to list to be drawn
     chart->point_list = g_slist_append(chart->point_list, point);
+
+    // Queue draw of widget
+    if (GTK_IS_WIDGET(chart))
+    {
+        gtk_widget_queue_draw(GTK_WIDGET(chart));
+    }
+}
+
+EXPORT void gtk_chart_add_slice(GtkChart *chart, double value, const char *color)
+{
+    // Allocate memory for new slice
+    struct chart_slice_t *slice = g_new0(struct chart_slice_t, 1);
+    slice->value = value;
+    gdk_rgba_parse(&slice->color, color);
+
+    // Add slice to list to be drawn
+    chart->slice_list = g_slist_append(chart->slice_list, slice);
 
     // Queue draw of widget
     if (GTK_IS_WIDGET(chart))
