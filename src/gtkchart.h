@@ -93,5 +93,7 @@ EXPORT bool gtk_chart_set_color(GtkChart *chart, char *name, char *color);
 EXPORT void gtk_chart_set_font(GtkChart *chart, const char *name);
 
 EXPORT void gtk_chart_add_slice(GtkChart *chart, double value, const char *color);
+EXPORT void gtk_chart_set_slice_value(GtkChart *chart, int index, double value);
+EXPORT bool gtk_chart_set_slice_color(GtkChart *chart, int index, const char *color);
 
 G_END_DECLS
