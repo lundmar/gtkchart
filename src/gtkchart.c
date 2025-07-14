@@ -1108,3 +1108,44 @@ EXPORT void gtk_chart_set_font(GtkChart *chart, const char *name)
 
     chart->font_name = g_strdup(name);
 }
+
+EXPORT void gtk_chart_set_slice_value(GtkChart *chart, int index, double value)
+{
+  g_assert_nonnull(chart);
+  if(index < 0) return;
+
+  GSList *l = chart->slice_list;
+  int i = 0;
+
+  while(l != NULL && i < index)
+  {
+    l = l->next;
+    i++;
+  }
+
+  if(l == NULL) return;
+
+  struct chart_slice_t *slice = l->data;
+  slice->value = value;
+}
+
+EXPORT bool gtk_chart_set_slice_color(GtkChart *chart, int index, const char *color)
+{
+  g_assert_nonnull(chart);
+  g_assert_nonnull(color);
+  if(index < 0) return false;
+
+  GSList *l = chart->slice_list;
+  int i = 0;
+
+  while(l != NULL && i < index)
+  {
+    l = l->next;
+    i++;
+  }
+
+  if(l == NULL) return false;
+
+  struct chart_slice_t *slice = l->data;
+  return gdk_rgba_parse(&slice->color, color);
+}

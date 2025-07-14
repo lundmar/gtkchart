@@ -97,6 +97,7 @@ static void demo_box_init(DemoBox *self)
 
     GtkWidget *hbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     GtkWidget *hbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    GtkWidget *hbox3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
 
     // --- Line Chart ---
     GtkChart *line_chart = GTK_CHART(gtk_chart_new());
@@ -151,11 +152,23 @@ static void demo_box_init(DemoBox *self)
     gtk_chart_set_title(number_chart, "Number Chart");
     gtk_widget_set_hexpand(GTK_WIDGET(number_chart), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(number_chart), TRUE);
+    gtk_box_append(GTK_BOX(hbox3), GTK_WIDGET(number_chart));
     g_timeout_add(50, number_chart_timeout, number_chart);
+
+    // --- Pie Chart ---
+    GtkChart *pie_chart = GTK_CHART(gtk_chart_new());
+    gtk_chart_set_type(pie_chart, GTK_CHART_TYPE_PIE);
+    gtk_chart_set_title(pie_chart, "Pie Chart");
+    gtk_widget_set_hexpand(GTK_WIDGET(pie_chart), TRUE);
+    gtk_widget_set_vexpand(GTK_WIDGET(pie_chart), TRUE);
+    gtk_chart_add_slice(pie_chart, 50, "#FF6484");
+    gtk_chart_add_slice(pie_chart, 25, "#FFC686");
+    gtk_chart_add_slice(pie_chart, 25, "#36A282");
+    gtk_box_append(GTK_BOX(hbox3), GTK_WIDGET(pie_chart));
 
     gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox1));
     gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox2));
-    gtk_box_append(GTK_BOX(self), GTK_WIDGET(number_chart));
+    gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox3));
 }
 
 static void demo_box_class_init(DemoBoxClass *klass)
