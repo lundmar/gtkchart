@@ -58,6 +58,7 @@ typedef enum
   GTK_CHART_TYPE_GAUGE_ANGULAR,
   GTK_CHART_TYPE_GAUGE_LINEAR,
   GTK_CHART_TYPE_PIE,
+  GTK_CHART_TYPE_COLUMN,
   GTK_CHART_TYPE_NUMBER
 } GtkChartType;
 
@@ -96,5 +97,11 @@ EXPORT void gtk_chart_add_slice(GtkChart *chart, double value, const char *color
 EXPORT void gtk_chart_set_slice_value(GtkChart *chart, int index, double value);
 EXPORT bool gtk_chart_set_slice_color(GtkChart *chart, int index, const char *color);
 EXPORT void gtk_chart_set_slice_label(GtkChart *chart, int index, const char *label);
+
+
+EXPORT void gtk_chart_add_column(GtkChart *chart, double value, const char *color, const char *label);
+EXPORT void gtk_chart_set_column_value(GtkChart *chart, int index, double value);
+EXPORT bool gtk_chart_set_column_color(GtkChart *chart, int index, const char *color);
+EXPORT void gtk_chart_set_column_label(GtkChart *chart, int index, const char *label);
 
 G_END_DECLS
