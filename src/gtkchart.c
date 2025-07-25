@@ -49,7 +49,7 @@ struct chart_slice_t
 struct _GtkChart
 {
     GtkWidget parent_instance;
-    int type;
+    GtkChartType type;
     char *title;
     char *label;
     char *x_label;
