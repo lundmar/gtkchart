@@ -44,6 +44,7 @@ struct chart_slice_t
 {
     double value;
     GdkRGBA color;
+    gchar *label;
 };
 
 struct _GtkChart
@@ -688,23 +689,9 @@ static void chart_draw_pie(GtkChart *self,
 
     cairo_set_antialias (cr, CAIRO_ANTIALIAS_FAST);
 
-    gdk_cairo_set_source_rgba (cr, &self->text_color);
-    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-
-    // Move coordinate system to bottom left
-    cairo_translate(cr, 0, h);
-
-    // Invert y-axis
-    cairo_scale(cr, 1, -1);
-
-    // Draw title
-    cairo_set_font_size (cr, MIN(w, h) / 20);
-    cairo_text_extents(cr, self->title, &extents);
-    cairo_move_to (cr, 0.5 * w - extents.width/2, 0.95 * h - extents.height/2);
-    cairo_save(cr);
-    cairo_scale(cr, 1, -1);
-    cairo_show_text (cr, self->title);
-    cairo_restore(cr);
+    // Center of chart
+    double cx = w / 2.0;
+    double cy = h / 2.0;
 
     double radius = MIN(w, h) / 2.5; // margin
 
@@ -738,8 +725,48 @@ static void chart_draw_pie(GtkChart *self,
         cairo_close_path(cr);
         cairo_fill(cr);
 
+        if(slice->label != NULL) {
+            double middle = start_angle + slice_angle / 2.0;
+            double distance = radius + 20; // Position outside of the slide radius
+
+            double lx = cx + cos(middle) * distance; // X = cx + cos(0) * radius
+            double ly = cy + sin(middle) * distance; // Y = cy + cos(0) * radius
+
+            cairo_set_source_rgba(cr, slice->color.red, slice->color.green, slice->color.blue, slice->color.alpha);
+            cairo_select_font_face(cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+            cairo_set_font_size(cr, 12);
+            cairo_text_extents(cr, slice->label, &extents);
+
+            // Adjust x position if angle is between 90º (PI/2) and 270º (3PI/2)
+            if(middle > G_PI / 2 && middle < 3 * G_PI / 2)
+            {
+                lx -= extents.width;
+            }
+
+            cairo_move_to(cr, lx, ly);
+            cairo_show_text(cr, slice->label);
+        }
+
         start_angle += slice_angle;
     }
+
+    gdk_cairo_set_source_rgba (cr, &self->text_color);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+
+    // Move coordinate system to bottom left
+    cairo_translate(cr, 0, h);
+
+    // Invert y-axis
+    cairo_scale(cr, 1, -1);
+
+    // Draw title
+    cairo_set_font_size (cr, MIN(w, h) / 20);
+    cairo_text_extents(cr, self->title, &extents);
+    cairo_move_to (cr, 0.5 * w - extents.width/2, 0.95 * h - extents.height/2);
+    cairo_save(cr);
+    cairo_scale(cr, 1, -1);
+    cairo_show_text (cr, self->title);
+
     cairo_destroy(cr);
 }
 
@@ -965,12 +992,13 @@ EXPORT void gtk_chart_plot_point(GtkChart *chart, double x, double y)
     }
 }
 
-EXPORT void gtk_chart_add_slice(GtkChart *chart, double value, const char *color)
+EXPORT void gtk_chart_add_slice(GtkChart *chart, double value, const char *color, const char *label)
 {
     // Allocate memory for new slice
     struct chart_slice_t *slice = g_new0(struct chart_slice_t, 1);
     slice->value = value;
     gdk_rgba_parse(&slice->color, color);
+    if(label != NULL) slice->label = g_strdup(label);
 
     // Add slice to list to be drawn
     chart->slice_list = g_slist_append(chart->slice_list, slice);
@@ -1148,4 +1176,27 @@ EXPORT bool gtk_chart_set_slice_color(GtkChart *chart, int index, const char *co
 
   struct chart_slice_t *slice = l->data;
   return gdk_rgba_parse(&slice->color, color);
+}
+
+EXPORT void gtk_chart_set_slice_label(GtkChart *chart, int index, const char *label)
+{
+  g_assert_nonnull(chart);
+  g_assert_nonnull(label);
+  if(index < 0) return;
+
+  GSList *l = chart->slice_list;
+  int i = 0;
+
+  while(l != NULL && i < index)
+  {
+    l = l->next;
+    i++;
+  }
+
+  if(l == NULL) return;
+
+  struct chart_slice_t *slice = l->data;
+
+  g_free(slice->label);
+  slice->label = g_strdup(label);
 }

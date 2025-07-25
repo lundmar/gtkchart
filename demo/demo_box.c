@@ -161,9 +161,9 @@ static void demo_box_init(DemoBox *self)
     gtk_chart_set_title(pie_chart, "Pie Chart");
     gtk_widget_set_hexpand(GTK_WIDGET(pie_chart), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(pie_chart), TRUE);
-    gtk_chart_add_slice(pie_chart, 50, "#FF6484");
-    gtk_chart_add_slice(pie_chart, 25, "#FFC686");
-    gtk_chart_add_slice(pie_chart, 25, "#36A282");
+    gtk_chart_add_slice(pie_chart, 50, "#FF6484", "Mathematics");
+    gtk_chart_add_slice(pie_chart, 25, "#FFC686", "English");
+    gtk_chart_add_slice(pie_chart, 25, "#36A282", "Science");
     gtk_box_append(GTK_BOX(hbox3), GTK_WIDGET(pie_chart));
 
     gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox1));
