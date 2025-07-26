@@ -103,5 +103,6 @@ EXPORT void gtk_chart_add_column(GtkChart *chart, double value, const char *colo
 EXPORT void gtk_chart_set_column_value(GtkChart *chart, int index, double value);
 EXPORT bool gtk_chart_set_column_color(GtkChart *chart, int index, const char *color);
 EXPORT void gtk_chart_set_column_label(GtkChart *chart, int index, const char *label);
+EXPORT void gtk_chart_set_column_ticks(GtkChart *chart, int ticks);
 
 G_END_DECLS

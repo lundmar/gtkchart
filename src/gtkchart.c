@@ -796,8 +796,8 @@ static void chart_draw_column(GtkChart *self,
         return;
     }
 
-    float spacing = (w * 0.05) * (n_total + 1);
-    float column_width = (w - spacing) / n_total;
+    float spacing = (w * 0.05) / (n_total + 1);
+    float column_width = (w - 10 * (w * 0.05) - spacing * (n_total - 1)) / n_total;
 
     double max_value = 0.0;
     GSList *l;
@@ -848,7 +848,7 @@ static void chart_draw_column(GtkChart *self,
 
         float column_height = column->value * y_scale;
 
-        float x = (w * 0.05) + i * (column_width + (w * 0.05));
+        float x = (w * 0.05) + i * (column_width + spacing);
         float y = h - (0.1 * h) - column_height;
         i++;
 
@@ -861,21 +861,22 @@ static void chart_draw_column(GtkChart *self,
         if(column->label != NULL) {
             cairo_text_extents_t extents;
 
-        // Draw Label
-        cairo_set_source_rgba(cr, 0.6, 0.6, 0.6, 0.8);
-        cairo_select_font_face(cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-        cairo_set_font_size(cr, 12);
-        cairo_text_extents(cr, column->label, &extents);
+            // Draw Label
+            cairo_set_source_rgba(cr, 0.6, 0.6, 0.6, 0.8);
+            cairo_select_font_face(cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+            cairo_set_font_size(cr, 12);
+            cairo_text_extents(cr, column->label, &extents);
 
-        float label_x = x + column_width / 2;
-        float label_y = h - (w * 0.03) + 20;
+            float label_x = x + column_width / 2;
+            float label_y = h - (w * 0.03) + 20;
 
-        cairo_save(cr);
-        cairo_translate(cr, label_x, label_y);
-        cairo_rotate(cr, -M_PI / 3); // rotate -60º (-PI/3)
+            cairo_save(cr);
+            cairo_translate(cr, label_x, label_y);
+            cairo_rotate(cr, -M_PI / 3); // rotate -60º (-PI/3)
 
-        cairo_move_to(cr, -extents.width / 2, -extents.height);
-        cairo_show_text(cr, column->label);
+            cairo_move_to(cr, -extents.width / 2, -extents.height);
+            cairo_show_text(cr, column->label);
+            cairo_restore(cr);
         }
     }
     cairo_destroy(cr);
@@ -1396,4 +1397,11 @@ EXPORT void gtk_chart_set_column_label(GtkChart *chart, int index, const char *l
 
   g_free(column->label);
   column->label = g_strdup(label);
+}
+
+EXPORT void gtk_chart_set_column_ticks(GtkChart *chart, int ticks)
+{
+  g_assert_nonnull(chart);
+
+  chart->ticks = ticks;
 }
