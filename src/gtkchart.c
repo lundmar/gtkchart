@@ -798,8 +798,8 @@ static void chart_draw_column(GtkChart *self,
         return;
     }
 
-    float spacing = (w * 0.05) / (n_total + 1);
-    float column_width = (w - 10 * (w * 0.05) - spacing * (n_total - 1)) / n_total;
+    float spacing = (w * 0.05) * (n_total + 1);
+    float column_width = (w - spacing) / n_total;
 
     double max_value = 0.0;
     GSList *l;
@@ -853,7 +853,7 @@ static void chart_draw_column(GtkChart *self,
             column_height = 2.0f;
         }
 
-        float x = (w * 0.05) + i * (column_width + spacing);
+        float x = (w * 0.05) + i * (column_width + (w * 0.05));
         float y = h - (0.1 * h) - column_height;
         i++;
 
