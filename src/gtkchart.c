@@ -785,6 +785,8 @@ static void chart_draw_column(GtkChart *self,
                               float h,
                               float w)
 {
+    cairo_text_extents_t extents;
+
     // Set up Cairo region
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, &GRAPHENE_RECT_INIT(0, 0, w, h + 40));
 
@@ -826,7 +828,7 @@ static void chart_draw_column(GtkChart *self,
         char label[64];
         snprintf(label, sizeof(label), "%.0f", value);
 
-        // Draw Ticks Value
+        // Draw ticks value
         cairo_set_source_rgba(cr, 0.6, 0.6, 0.6, 0.8);
         cairo_select_font_face(cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
         cairo_set_font_size(cr, 12);
@@ -847,6 +849,9 @@ static void chart_draw_column(GtkChart *self,
 
 
         float column_height = column->value * y_scale;
+        if(column_height < 2.0f) { // value = 0
+            column_height = 2.0f;
+        }
 
         float x = (w * 0.05) + i * (column_width + spacing);
         float y = h - (0.1 * h) - column_height;
@@ -859,8 +864,6 @@ static void chart_draw_column(GtkChart *self,
         cairo_fill(cr);
 
         if(column->label != NULL) {
-            cairo_text_extents_t extents;
-
             // Draw Label
             cairo_set_source_rgba(cr, 0.6, 0.6, 0.6, 0.8);
             cairo_select_font_face(cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -879,6 +882,24 @@ static void chart_draw_column(GtkChart *self,
             cairo_restore(cr);
         }
     }
+
+    gdk_cairo_set_source_rgba (cr, &self->text_color);
+    cairo_select_font_face (cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+
+    // Move coordinate system to bottom left
+    cairo_translate(cr, 0, h);
+
+    // Invert y-axis
+    cairo_scale(cr, 1, -1);
+
+    // Draw title
+    cairo_set_font_size (cr, MIN(w, h) / 20);
+    cairo_text_extents(cr, self->title, &extents);
+    cairo_move_to (cr, 0.5 * w - extents.width/2, 0.95 * h - extents.height/2);
+    cairo_save(cr);
+    cairo_scale(cr, 1, -1);
+    cairo_show_text (cr, self->title);
+
     cairo_destroy(cr);
 }
 
@@ -1404,4 +1425,18 @@ EXPORT void gtk_chart_set_column_ticks(GtkChart *chart, int ticks)
   g_assert_nonnull(chart);
 
   chart->ticks = ticks;
+}
+
+EXPORT double gtk_chart_get_column_max_value(GtkChart *chart) {
+  double max_value = 0.0;
+  GSList *l;
+  for(l = chart->column_list; l != NULL; l = l->next)
+  {
+    struct chart_column_t *column = l->data;
+    if (column->value > max_value) {
+      max_value = column->value;
+    }
+  }
+
+  return max_value;
 }

@@ -98,6 +98,7 @@ static void demo_box_init(DemoBox *self)
     GtkWidget *hbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     GtkWidget *hbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     GtkWidget *hbox3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    GtkWidget *hbox4 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
 
     // --- Line Chart ---
     GtkChart *line_chart = GTK_CHART(gtk_chart_new());
@@ -135,6 +136,7 @@ static void demo_box_init(DemoBox *self)
     gtk_chart_set_value_max(gauge_angular_chart, 50.0);
     gtk_box_append(GTK_BOX(hbox2), GTK_WIDGET(gauge_angular_chart));
     g_timeout_add(50, angular_gauge_chart_timeout, gauge_angular_chart);
+
     // --- Linear Angular Chart ---
     GtkChart *gauge_linear_chart = GTK_CHART(gtk_chart_new());
     gtk_chart_set_type(gauge_linear_chart, GTK_CHART_TYPE_GAUGE_LINEAR);
@@ -152,7 +154,7 @@ static void demo_box_init(DemoBox *self)
     gtk_chart_set_title(number_chart, "Number Chart");
     gtk_widget_set_hexpand(GTK_WIDGET(number_chart), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(number_chart), TRUE);
-    gtk_box_append(GTK_BOX(hbox3), GTK_WIDGET(number_chart));
+    gtk_box_append(GTK_BOX(hbox4), GTK_WIDGET(number_chart));
     g_timeout_add(50, number_chart_timeout, number_chart);
 
     // --- Pie Chart ---
@@ -166,9 +168,22 @@ static void demo_box_init(DemoBox *self)
     gtk_chart_add_slice(pie_chart, 25, "#36A282", "Science");
     gtk_box_append(GTK_BOX(hbox3), GTK_WIDGET(pie_chart));
 
+    // --- Column (Bar) Chart ---
+    GtkChart *column_chart = GTK_CHART(gtk_chart_new());
+    gtk_chart_set_type(column_chart, GTK_CHART_TYPE_COLUMN);
+    gtk_chart_set_title(column_chart, "Column Chart");
+    gtk_widget_set_hexpand(GTK_WIDGET(column_chart), TRUE);
+    gtk_widget_set_vexpand(GTK_WIDGET(column_chart), TRUE);
+    gtk_chart_add_column(GTK_CHART(column_chart), 10, "#3498DB", "Sunday");
+    gtk_chart_add_column(GTK_CHART(column_chart), 4, "#2ECC71", "Monday");
+    gtk_chart_add_column(GTK_CHART(column_chart), 8, "#F1C40F", "Tuesday");
+    gtk_chart_set_column_ticks(GTK_CHART(column_chart), 5);
+    gtk_box_append(GTK_BOX(hbox3), GTK_WIDGET(column_chart));
+
     gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox1));
     gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox2));
     gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox3));
+    gtk_box_append(GTK_BOX(self), GTK_WIDGET(hbox4));
 }
 
 static void demo_box_class_init(DemoBoxClass *klass)
