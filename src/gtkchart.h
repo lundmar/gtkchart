@@ -104,5 +104,6 @@ EXPORT void gtk_chart_set_column_value(GtkChart *chart, int index, double value)
 EXPORT bool gtk_chart_set_column_color(GtkChart *chart, int index, const char *color);
 EXPORT void gtk_chart_set_column_label(GtkChart *chart, int index, const char *label);
 EXPORT void gtk_chart_set_column_ticks(GtkChart *chart, int ticks);
+EXPORT double gtk_chart_get_column_max_value(GtkChart *chart);
 
 G_END_DECLS
