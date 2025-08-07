@@ -1201,6 +1201,16 @@ EXPORT double gtk_chart_get_x_max(GtkChart *chart)
     return chart->x_max;
 }
 
+EXPORT double gtk_chart_get_x_min(GtkChart *chart)
+{
+    return chart->x_max;
+}
+
+EXPORT double gtk_chart_get_y_max(GtkChart *chart)
+{
+    return chart->y_max;
+}
+
 EXPORT double gtk_chart_get_y_min(GtkChart *chart)
 {
     return chart->y_min;
